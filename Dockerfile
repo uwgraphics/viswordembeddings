@@ -4,3 +4,4 @@ RUN pip install -r /tmp/req.txt
 ENV STATIC_PATH /app/static
 COPY ./app /app
 RUN mkdir /data
+EXPOSE 80
