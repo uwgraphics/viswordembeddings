@@ -1,10 +1,10 @@
-//d3.json('get_abstraction').header('Content-Type', 'application/json')
+//d3.json('/get_abstraction').header('Content-Type', 'application/json')
 //                               .post(JSON.stringify({'id':1, 'embedding':'TCP_EBO', 'terms' : ['queen','king','child']}),
 //                                function (error, json) { console.log(json); });
 
 function setupUi() {
     d3.select('#updatebutton').attr('onclick', 'load()');
-    d3.json('get_ui_data', function(error, json) {
+    d3.json('/get_ui_data', function(error, json) {
         if (error) return console.warn(error);
         d3.select('#wordselectionlist').selectAll('option')
           .data(json.wordlists).enter().append('option')
@@ -40,7 +40,7 @@ function load() {
     d3.select('#content').selectAll('*').remove();
     var spinner = new Spinner().spin(d3.select('#content').node());
     
-    d3.json('projections_get_data').header('Content-Type', 'application/json')
+    d3.json('/projections_get_data').header('Content-Type', 'application/json')
                         .post(JSON.stringify(parameters), createChart);
 }
 

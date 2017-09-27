@@ -18,7 +18,7 @@ function setupUi(configData) {
         $(newNode).selectmenu();
     });
     
-    //add the first frop down list
+    //add the first drop down list
     d3.select("#addembeddingbutton").on("click")();
     d3.select("#clearwordbutton").on("click", function() {
         d3.selectAll("#wordlist > *").remove();
@@ -38,7 +38,7 @@ function setupUi(configData) {
     d3.select('#updatebutton').on('click', update);
 }
 
-d3.json('get_ui_data', function(error, json) {        
+d3.json('/get_ui_data', function(error, json) {        
     if (error) return console.warn(error);
     setupUi(json);
 });
@@ -56,11 +56,11 @@ function update() {
     var spinner = new Spinner().spin(d3.select('#content').node());
 
     var rData = {'embeddings' : embeddings, 'terms' : terms};
-    d3.json('coocs_get_data').header('Content-Type', 'application/json')
+    d3.json('/coocs_get_data').header('Content-Type', 'application/json')
                              .post(JSON.stringify(rData), callback);
 }
 
-// Define the div for the tooltip
+//define the div for the tooltip
 var div = d3.select("body").append("div")	
             .attr("class", "tooltip")
             .style("opacity", 0);
@@ -93,16 +93,11 @@ function callback(error, data) {
     var cooc_terms = data[2];
     var cooc_lines = data[3];
     var num_coocs = cooc_lines[embs[0]][0].length
-    
-    //console.log(embs);
-    //console.log(terms);
-    //console.log(cooc_lines);
 
     //create color mappings for columns of cooc terms
     var color_scales = [];
     vals = [];
     for (var i = 0; i < cooc_terms.length; i++) {
-        //vals = [];
         embs.forEach(function (emb_name) {
                 cooc_lines[emb_name].forEach(function (line) {
                     vals.push(line[i][1]);

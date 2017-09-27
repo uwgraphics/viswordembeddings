@@ -6,7 +6,7 @@ function setupUi() {
     d3.select('#addbutton').on('click', addAxis);
     d3.select('#updatebutton').on('click', update);
     d3.select('#examplebutton').on('click', example);
-    d3.json('get_ui_data', function(error, json) {        
+    d3.json('/get_ui_data', function(error, json) {        
         if (error) return console.warn(error);
         configData = json;
         //sort the embedding names alphabetically
@@ -49,7 +49,7 @@ function addAxis() {
         }
     });
     //send signal to backend to preload stuff
-    d3.json('neighbors_signal').header('Content-Type', 'application/json')
+    d3.json('/neighbors_signal').header('Content-Type', 'application/json')
                         .post(JSON.stringify(requestData(final=false)), null);
     var newblock = d3.select('.defineaxes').append('li').attr('class', 'axisblock').attr('seq', (maxseq + 1));
     newblock.append('select').attr('class', 'selectembedding')
@@ -89,7 +89,7 @@ function update() {
     var rData = requestData();
     rData.forEach(function(d, i) { d.id = i; });
     lastRequest = rData;
-    d3.json('neighbors_get_data').header('Content-Type', 'application/json')
+    d3.json('/neighbors_get_data').header('Content-Type', 'application/json')
                                  .post(JSON.stringify(rData), plotBuddies);
 }
 

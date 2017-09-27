@@ -6,7 +6,6 @@ import json, os, ast, pickle, sys
 from pathlib import Path
 import numpy as np
 
-
 data = None
 embeddings = {}
 wordlists = {}
@@ -30,13 +29,10 @@ if len(sys.argv) > 1 and sys.argv[1] == 'demo':
     def test():
         return 'DEMO MODE!!'
     
-    @app.route('/<path:path>')
+    @app.route('/s/<path:path>')
     def send_file(path):
         print(path)
-        if path in ['coocs', 'neighborhoods', 'scatter', 'index']:
-            return app.send_static_file(path + '.html')
-        else:
-            return app.send_static_file(path)
+        return app.send_static_file(path)
 else:
     app = Flask(__name__)
 
