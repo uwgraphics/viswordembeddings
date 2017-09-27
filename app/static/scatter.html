@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Vector Relations</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script type='text/javascript' src='http://spin.js.org/spin.min.js'></script>
+    </head>
+    <body>
+        <div id="navbar">
+          <img class="logo" src="crest.svg"></img>
+          <a href="index", id="about", class="navinactive">About</a>
+          <a href="neighborhoods", id="neighbors", class="navinactive">Neighborhoods</a>
+          <a href="scatter", id="projections", class="navactive">Concept Projection</a>
+          <a href="coocs", id="coocs", class="navinactive">Co-occurrences</a>
+        </div>
+
+        <div id="main">
+            <img id="config" src="gears.svg"></img>
+            <div class="controls_horizontal" id="dialog">
+                <div class="controls_vertical">
+                    <div class="controlgroup">
+                        <fieldset>
+                            <legend>word list selection</legend>
+                            <ul style="list-style: none;">
+                                <li>word list:</li>
+                                <li><select name='wordselection' id='wordselectionlist'></select></li>
+                            </ul>
+                        </fieldset>
+                    </div>
+                    <div class="controlgroup">
+                        <div class="controls_horizontal">
+                            <fieldset>
+                                <legend>horizontal axis</legend>
+                                <ul style="list-style: none;">
+                                    <li>embedding:</li>
+                                    <li><select class="selectmenu" name='xembedding' id='xembeddinglist'></select></li>
+                                    <br/>
+                                    <li>concept:</li>
+                                    <li><input style="max-width: 100px;" type='text' id='xdimension1'></input>
+                                    <input style="max-width: 100px;" type='text' id='xdimension2'></input></li>
+                                </ul>
+                            </fieldset>
+                            <br/>
+                            <fieldset>
+                                <legend>vertical axis</legend>
+                                <ul style="list-style: none;">
+                                    <li>embedding:</li>
+                                    <li><select name='yembedding' id='yembeddinglist'></select></label></li>
+                                    <br/>
+                                    <li>concept:</li>
+                                    <li><input style="max-width: 100px;" type='text' id='ydimension1'></input><input style="max-width: 100px;" type='text' id='ydimension2'></input></li>
+                                </ul>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <input style="max-width: 300px; display: block; margin: auto;" class="ui-button ui-widget ui-corner-all" type='button' value='OK' id='updatebutton'></input>
+            </div>
+            <div id='content'>
+            </div>
+        </div>
+        
+    </body>
+    <script type='text/javascript' src='js/scatter.js'></script>
+</html>

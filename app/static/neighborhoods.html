@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Embedding Neighborhoods</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script type='text/javascript' src='http://spin.js.org/spin.min.js'></script>
+    </head>
+    <body>
+        
+        <div id="navbar">
+          <img class="logo" src="crest.svg"></img>
+          <a href="index", id="about", class="navinactive">About</a>
+          <a href="neighborhoods", id="neighbors", class="navactive">Neighborhoods</a>
+          <a href="scatter", id="projections", class="navinactive">Concept Projection</a>
+          <a href="coocs", id="coocs", class="navinactive">Co-occurrences</a>
+        </div>
+
+        <div id="main">
+            <img id="config" src="gears.svg"></img>
+            <div class="controls_vertical" id="dialog">
+                <div class="controlgroup">
+                    </br></br>
+                    <label title="The number of nearest neighbors shown on each of the axes." class="ui-controlgroup-label"># of neighbors <input style="max-width: 25px;" class='ui-spinner-input blub' value='10' min='1' max='50' id='numberofneighbors'></input></label>
+                    <label title="Show nearest neighbors at discrete distances on axes.">discrete ranks <input type='checkbox' value='rank' id='rankswitch'></input></label>
+                    <label title="Show nearest neighbors as bars (small rectangles) instead of circles.">bars not circles <input type='checkbox' value='bars' id='bars'></input></label>
+                    </br></br></br>
+                    <input class="ui-button ui-widget ui-corner-all" type='button' value='add axis' id='addbutton' title="Add a new axis to the list on the right for configuration."></input>
+                    </br>
+                    <input class="ui-button ui-widget ui-corner-all" type='button' value='create example' id='examplebutton' title="Create example that tracks the nearest neighbors of 'gay' over two centuries (see our poster paper for more information)."></input>
+                    </br></br>
+                    <input class="ui-button ui-widget ui-corner-all" type='button' value='OK' id='updatebutton' title="Exit contral panel and update visualization."></input>
+                </div>
+                <ul class="defineaxes">
+                    <li class="firstaxisblock">
+                        <span>Configure axes:</span>
+                    </li>
+                </ul>
+            </div>
+            <div id='content'>
+            </div>
+        </div>
+    </body>
+    <script type='text/javascript' src='js/neighbors.js'></script>
+</html>

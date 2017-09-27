@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <body>
+        <div id="navbar">
+          <img class="logo" src="crest.svg"></img>
+          <a href="index", id="about", class="navactive">About</a>
+          <a href="neighborhoods", id="neighbors", class="navinactive">Neighborhoods</a>
+          <a href="scatter", id="projections", class="navinactive">Concept Projection</a>
+          <a href="coocs", id="coocs", class="navinactive">Co-occurrences</a>
+        </div>
+
+        <div id="main">
+            <div class="textblock">
+                <h1>What is this page about?</h1>
+                <p>
+                This page contains our interactive designs for exploring and analyzing word vector embeddings.
+                For more information about the implementations and the ideas behind it, please refer to our <a href="http://pages.cs.wisc.edu/~heimerl/files/poster_summary.pdf" target="_blank">poster paper</a> for <a href="http://ieeevis.org" target="_blank">VIS 2017</a>.
+                If you use our implementations or our code for your own project, please cite our poster with the following BibTeX entry:
+                </p>
+                <pre>
+@InCollection {heimerl:2017,
+    title     = {Visual Exploration of Word Vector Embeddings},
+    author    = {Florian Heimerl, Michael Gleicher},
+    booktitle = {Proceedings of VIS 2017 (Posters)},
+    year      = {2017}
+}
+                </pre>
+                <p>
+                We provide 22 example embeddings to use and explore with the implementations on this page.
+                Those are:
+                    <ul>
+                        <li><b>1800-1990:</b> The
+                            <a href="https://github.com/williamleif/histwords" target="_blank">HistWords</a>
+                            embeddings created by
+                            <a href="https://web.stanford.edu/~jurafsky/pubs/paper-hist_vec.pdf" target="_blank">Hamilton et al.</a>
+                            We use their "All English" data set.
+                            Those embeddings are trained on Google n-grams for each decade from 1800-1990, resulting in 20 embeddings.
+                        </li>
+                        
+                        <li><b>EEBO_TCP:</b>
+                            Word embedding trained with
+                            <a href="https://nlp.stanford.edu/projects/glove/" target="_blank">GloVe</a>
+                            on the historic
+                            <a href="http://www.textcreationpartnership.org/tcp-eebo/" target="_blank">EEBO-TCP</a>
+                            corpus.
+                        </li>
+                        
+                        <li><b>wiki_full:</b>
+                            Word embedding trained with
+                            <a href="https://nlp.stanford.edu/projects/glove/" target="_blank">GloVe</a>
+                            on the entire English
+                            <a href="http://www.wikipedia.org" target="_blank">Wikipedia</a>.
+                        </li>
+                    </ul>
+                </p>
+                <h1>Cool! Can I use this for my own data?</h1>
+                <p>
+                If you are interested in analyzing your own embeddings, you can either directly work with our code available on GitHub.
+                Alternatively, a docker image that runs the implementations on a web server is readily available.
+                Embeddings can be linked to the image in a straightforward way.
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,4 @@
+scipy==0.19.1
+Flask==0.12.2
+numpy==1.13.1
+git+https://github.com/bshillingford/python-sharearray

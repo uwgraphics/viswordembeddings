@@ -1,0 +1,243 @@
+#content {
+    height: 100%;
+}
+
+#content * {
+    margin: auto;
+    display: block;
+}
+
+.controls_vertical {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.controls_horizontal {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.logo {
+    float: left;
+    width: auto;
+    height: 40px;
+    padding: 5px 5px 0 5px;
+}
+
+#config {
+    position: absolute;
+    left: -18px;
+    transition:.5s;
+    width: 36px;
+    height: auto;
+}
+
+#config:hover {
+    left: 0px;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+#navbar {
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    z-index: 150;
+    top: 0;
+    width: 100%;
+}
+
+#navbar a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+#navbar a.inactive {
+    color: #f2f2f2;
+}
+
+#navbar a.navinactive {
+    color: #9ecae1;
+}
+
+#main {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: scroll;
+}
+
+svg text {
+    user-select: none;
+}
+
+svg text.selected {
+    fill: red;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.buttons * {
+    margin-top: 10px;
+    max-width: 200px;
+}
+
+.defineaxes {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    flex-shrink: 0;
+}
+
+.firstaxisblock * {
+    display: flex;
+    //min-width: 380px;
+    text-align: center;
+}
+
+.axisblock, .firstaxisblock {
+    display: flex;
+    flex-direction: row;
+    min-height: 35px;
+    flex-shrink: 0;
+}
+
+.axisblock *, .firstaxisblock * {
+    margin: 5px 5px 5px 5px;
+}
+
+.axisblock input[type="button"] {
+    max-width: 30px;
+    min-width: 30px;
+}
+
+.axisblock input[type="text"] {
+    min-width: 120px;
+    max-width: 120px;
+}
+
+.main text {
+    font: 10px sans-serif;	
+}
+
+.axis line, .axis path {
+    shape-rendering: crispEdges;
+    stroke: black;
+    fill: none;
+}
+
+.controls label {
+    display: inline-block;
+}
+
+input {
+    display: inline-block;
+    float: left;
+}
+
+svg {
+    overflow: visible;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.controls_line {
+    display: flex;
+    
+    //align-self: flex-start;
+    margin: 10px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.ui_item_center {
+    align-self: flex-start;
+    margin: auto;
+}
+
+.main text {
+    font: 10px sans-serif;	
+}
+
+.axis line, .axis path {
+    shape-rendering: crispEdges;
+    stroke: black;
+    fill: none;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    height: 28px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+div.lenstext {
+    display: inline-block;
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 3px;
+    pointer-events: none;
+}
+
+.fillline {
+    height: 100%;
+    margin-left:20px;
+}
+
+.line {
+    padding-top: 15px;
+    padding-bottom: 10px;
+    height: 150px;
+    width: 100%;
+    float:left;
+}
+
+.textblock {
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+}
