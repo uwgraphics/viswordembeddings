@@ -1,5 +1,1 @@
 __pycache__
-crest.svg
-data/embeddings/*
-!data/embeddings/wiki_full*
-!data/embeddings/EEBO_TCP*
