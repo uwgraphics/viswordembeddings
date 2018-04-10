@@ -43,9 +43,9 @@ if __name__ == '__main__':
     if len(sys.argv) != 3 or not sys.argv[1] in ['c0', 'c1']:
         print('convert txt style word embeddings (c0 = no context vectors, c1 = including context vectors) to numpy matrices')
         print('usage: <c0|c1><txt file>')
-    
-    context = (sys.argv[1] == 'c1')
-    infile = os.path.abspath(sys.argv[2])
-    convert(infile, context)
+    else:
+        context = (sys.argv[1] == 'c1')
+        infile = os.path.abspath(sys.argv[2])
+        convert(infile, context)
 
 

@@ -3,12 +3,21 @@ function setupUi(configData) {
     var embnames = [];
     configData.embeddings.forEach(function (d) { if (d.has_context) embnames.push(d.name); });
     embnames.sort();
-    
+
+    d3.select("#addcoocbutton").on("click", function() {
+        d3.select("#cooclist").append("br");
+        d3.select("#cooclist").append("li").append("input").attr("type", "text");
+    });
+    d3.select("#clearcoocbutton").on("click", function() {
+        d3.selectAll("#cooclist > *").remove();
+        d3.select("#cooclist").append("li").append("input").attr("type", "text");
+    });
+
     d3.select("#addwordbutton").on("click", function() {
         d3.select("#wordlist").append("br");
         d3.select("#wordlist").append("li").append("input").attr("type", "text");
     });
-    
+
     d3.select("#addembeddingbutton").on("click", function() {
         d3.select("#embeddinglist").append("br");
         var newNode = d3.select("#embeddinglist").append("li").append("select").node();
@@ -17,19 +26,19 @@ function setupUi(configData) {
           .append('option').attr('value', d => d).html(d => d);
         $(newNode).selectmenu();
     });
-    
+
     //add the first drop down list
     d3.select("#addembeddingbutton").on("click")();
     d3.select("#clearwordbutton").on("click", function() {
         d3.selectAll("#wordlist > *").remove();
         d3.select("#wordlist").append("li").append("input").attr("type", "text");
     });
-    
+
     d3.select("#clearembeddingbutton").on("click", function() {
         d3.selectAll("#embeddinglist > *").remove();
         d3.select("#addembeddingbutton").on("click")();
     });
-    
+
     d3.selection.prototype.last = function() {
         var last = this.size() - 1;
         return d3.select(this._groups[0][last]);
@@ -38,7 +47,7 @@ function setupUi(configData) {
     d3.select('#updatebutton').on('click', update);
 }
 
-d3.json('/get_ui_data', function(error, json) {        
+d3.json('/get_ui_data', function(error, json) {
     if (error) return console.warn(error);
     setupUi(json);
 });
@@ -48,20 +57,24 @@ function update() {
     $("#embeddinglist > li > select").each((i,e) => (embeddings.push(e.value)));
     terms = [];
     $("#wordlist > li > input").each((i,e) => (terms.push(e.value)));
-    
+    coocs = [];
+    $("#cooclist > li > input").each((i,e) => (coocs.push(e.value)));
+    //filter empty strings
+    coocs = coocs.filter(d => d);
+
     //close dialog
     $("#dialog").dialog("close");
     //remove old chart and start spinner
     d3.select('#content').selectAll('*').remove();
     var spinner = new Spinner().spin(d3.select('#content').node());
 
-    var rData = {'embeddings' : embeddings, 'terms' : terms};
+    var rData = {'embeddings' : embeddings, 'terms' : terms, 'coocs' : coocs};
     d3.json('/coocs_get_data').header('Content-Type', 'application/json')
                              .post(JSON.stringify(rData), callback);
 }
 
 //define the div for the tooltip
-var div = d3.select("body").append("div")	
+var div = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
 
@@ -83,6 +96,17 @@ function hideTooltip(d) {
        .style("opacity", 0);
 }
 
+function linearColorScale(val1, val2, colors) {
+    var numSteps = colors.length - 1;
+    var domainStepSize = (val2 - val1) / numSteps;
+    var domain = [];
+    for (var i = 0; i < numSteps; i++) {
+        domain.push(val1 + (domainStepSize * i));
+    }
+    domain.push(val2);
+    return d3.scaleLinear().domain(domain).range(colors);
+}
+
 function callback(error, data) {
 
     //remove spinner
@@ -93,60 +117,91 @@ function callback(error, data) {
     var cooc_terms = data[2];
     var cooc_lines = data[3];
     var num_coocs = cooc_lines[embs[0]][0].length
+    var embsMinMax = { };
 
-    //create color mappings for columns of cooc terms
-    var color_scales = [];
-    vals = [];
     for (var i = 0; i < cooc_terms.length; i++) {
-        embs.forEach(function (emb_name) {
-                cooc_lines[emb_name].forEach(function (line) {
-                    vals.push(line[i][1]);
-                });
+        embs.forEach(function(emb_name) {
+            if (!(emb_name in embsMinMax)) {
+                //create new entry [min, max]
+                embsMinMax[emb_name] = [Number.MAX_VALUE, Number.MIN_VALUE];
+            }
+            cooc_lines[emb_name].forEach(function(line) {
+                var val = line[i][1];
+                if (val < embsMinMax[emb_name][0]) { embsMinMax[emb_name][0] = val; }
+                if (val > embsMinMax[emb_name][1]) { embsMinMax[emb_name][1] = val; }
+            });
         });
-        color_scales.push(d3.scaleLog().domain([d3.min(vals), d3.max(vals)]).range(['white', 'blue']));
     }
 
-    for (var i = 0; i < color_scales.length; i++) {
-        color_scales[i] = color_scales[color_scales.length - 1];
+    var embColor = { };
+
+    //[/*'#fcfbfd', '#efedf5',*/ '#dadaeb', '#bcbddc', '#9e9ac8', '#807dba', '#6a51a3', '#54278f', '#3f007d'],
+    var brewerScales = [
+        [/*'#f7fbff', '#deebf7',*/ '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'],
+//        [/*'#f7fcf5', '#e5f5e0',*/ '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', '#006d2c', '#00441b'],
+        [/*'#fff5eb', '#fee6ce',*/ '#fdd0a2', '#fdae6b', '#fd8d3c', '#f16913', '#d94801', '#a63603', '#7f2704']];
+
+    for (var i = 0; i < embs.length; i++) {
+        var emb_name = embs[i];
+        embColor[emb_name] = linearColorScale(embsMinMax[emb_name][0], embsMinMax[emb_name][1], brewerScales[i % 2]);
     }
 
     var newSvg = d3.select('#content').append('svg')
                    .attr('class', 'fillline')
-                   .attr('width', (num_coocs * 30) + 220)
+                   .attr('width', (num_coocs * 30) + 350)
                    .attr('height', 90 + (terms.length * ((embs.length + 1) * 30)));
 
     newSvg.append('g').attr('id', 'cooccurrences').selectAll('text').data(cooc_terms).enter().append('text')
           .attr('transform', (d, i) => 'translate(' + ((i*30)+80) + ', 85' + ')rotate(-45)').text(d => d);
 
+    for (var i = 0; i < embs.length; i++) {
+        var colorLegend = d3.legendColor()
+            .ascending(true)
+            .useClass(false)
+            .scale(embColor[embs[i]])
+            .shapeWidth(20)
+            .shapeHeight(20);
+        if (i == 0) {
+          colorLegend.labels(d => d.i == 0 ? "low" : d.i == (d.genLength-1) ? "high" : "");
+        } else {
+          colorLegend.labels(d => null);
+        }
+        var ypos = parseInt(newSvg.attr("height")) / 2 - 30;
+        var xpos = parseInt(newSvg.attr("width")) - 70 - (22 * i);
+        newSvg.append("g")
+            .attr("transform", "translate(" + xpos + "," + ypos + ")")
+            .call(colorLegend);
+    }
+
     for (var term_i = 0; term_i < terms.length; term_i++) {
-        
+
         term = terms[term_i];
-        
+
         var termgroup = newSvg.append('g').attr('class', 'term: ' + term)
                               .attr('transform', 'translate(0,' + (term_i * ((embs.length + 1) * 30)) + ')');
         termgroup.append('text').attr('text-anchor', 'end')
                  .attr('transform', 'translate(63, ' + (((embs.length * 30)/2) + 90) + ')').text(term);
         for (var emb_j = 0; emb_j < embs.length; emb_j++) {
-            
+
             emb = embs[emb_j];
             list = cooc_lines[emb][term_i];
-            
+
             var groups = termgroup.append('g').attr('class', 'emb: ' + emb)
                                   .attr('transform', 'translate(70,' + (90 + (emb_j * 30)) + ')');
-            
+
             groups.selectAll('rect').data(list).enter().append('rect')
                 .attr('x', 0)
-                .attr('y', 0)
-                .attr('width', 30)
-                .attr('height', 30)
-                .attr('rx', d => d[0] ? 0 : 15)
-                .attr('ry', d => d[0] ? 0 : 15)
-                .style('fill', (d, i) => color_scales[i](d[1]))
+                .attr('y', d => d[0] ? 0 : 5)
+                .attr('width', d => d[0] ? 30 : 20)
+                .attr('height', d => d[0] ? 30 : 20)
+                //.attr('rx', d => d[0] ? 0 : 15)
+                //.attr('ry', d => d[0] ? 0 : 15)
+                .style('fill', (d, i) => embColor[emb](d[1]))
                 .style('stroke', 'black')
                 .on('mouseout', hideTooltip)
                 .on('mouseover', function(d, i) { showTooltip(d[4] + ' - ' + cooc_terms[i] + '<br/>' + d[1]); })
-                .transition().attr('x', (d, i) => (i*30)).duration(1000).delay( 250 );
-                
+                .transition().attr('x', (d, i) => d[0] ? (i*30) : ((i*30)+5)).duration(1000).delay( 250 );
+
             groups.append('text')
                   .attr('transform', 'translate(' + (5+(30*cooc_terms.length)) + ', 20)')
                   .text(emb);

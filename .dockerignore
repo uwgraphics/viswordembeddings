@@ -1,3 +1,4 @@
 Dockerfile
 app/__pycache__
 utils/
+data/

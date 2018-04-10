@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
         <title>Embedding Neighborhoods</title>
         <link rel="stylesheet" type="text/css" href="/s/style.css">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        <script type='text/javascript' src='http://spin.js.org/spin.min.js'></script>
+        <script type='text/javascript' src='/s/js/spin.min.js'></script>
     </head>
     <body>
-        
         <div id="navbar">
           <img class="logo" src="http://pages.cs.wisc.edu/~heimerl/crest.svg"></img>
           <a href="/", id="about", class="navinactive">About</a>
@@ -30,9 +30,10 @@
                     </br></br></br>
                     <input class="ui-button ui-widget ui-corner-all" type='button' value='add axis' id='addbutton' title="Add a new axis to the list on the right for configuration."></input>
                     </br>
-                    <input class="ui-button ui-widget ui-corner-all" type='button' value='create example' id='examplebutton' title="Create example that tracks the nearest neighbors of 'gay' over two centuries (see our poster paper for more information)."></input>
+                    <input class="ui-button ui-widget ui-corner-all" type='button' value="'gay' example" id='examplebuttongay' title="Create example that tracks the nearest neighbors of 'gay' over two centuries (see our poster for more information)."></input>
+                    <input class="ui-button ui-widget ui-corner-all" type='button' value="'broadcast' example" id='examplebuttonbroadcast' title="Create example that tracks the nearest neighbors of 'broadcast' over two centuries (see our paper for more information)."></input>
                     </br></br>
-                    <input class="ui-button ui-widget ui-corner-all" type='button' value='OK' id='updatebutton' title="Exit contral panel and update visualization."></input>
+                    <input class="ui-button ui-widget ui-corner-all" type='button' value='OK' id='updatebutton' title="Exit control panel and update visualization."></input>
                 </div>
                 <ul class="defineaxes">
                     <li class="firstaxisblock">

@@ -20,15 +20,15 @@ if len(sys.argv) > 1 and sys.argv[1] == 'demo':
     p = Path(__file__).resolve().parent / 'static'
     print("static folder: " + str(p))
     app = Flask(__name__, static_folder=str(p))
-    
+
     @app.route('/')
     def index():
         return app.send_static_file('index.html')
-        
+
     @app.route('/test')
     def test():
         return 'DEMO MODE!!'
-    
+
     @app.route('/s/<path:path>')
     def send_file(path):
         print(path)
@@ -42,10 +42,12 @@ def neighbors_get_data():
     allNeighbors = set()
     response = []
     single_sets = []
+    terms = set()
     for conf in json:
         nn = embeddings[conf['embedding']].getNN(conf['term'], number=conf['numneighbors'])
         response += [(conf['id'], n, dist, True) for n, dist in nn]
         this_set = set()
+        this_set.add(conf['term'])
         for term, dist in nn:
             allNeighbors.add(term)
             this_set.add(term)
@@ -65,8 +67,15 @@ def neighbors_get_data():
         if counts[ident] == 0: print(term)
         counts[ident] += 1
 
-    resp = jsonify(ranked_response)
-    return resp
+    stats = {}
+    for emb, num in ((conf["embedding"], conf['numneighbors']) for conf in json):
+        stats[emb] = embeddings[emb].getNeighborStats(num)
+    resp = {'stats' : stats, 'neighbors': ranked_response}
+    return jsonify(resp)
+
+@app.route('/neighbors_directions', methods=['post'])
+def neighbors_directions():
+    return None
 
 @app.route('/neighbors_signal', methods=['POST'])
 def neighbors_signal():
@@ -83,13 +92,39 @@ def get_ui_data():
     resp = jsonify(data)
     return resp
 
-@app.route('/get_abstraction', methods=['POST'])
+@app.route('/annotate_tree', methods=['POST'])
 def get_abstraction():
+    print('starting tree abstraction')
+    data = request.get_json()
+    visit(data['tree'], embeddings[data['emb']])
+    print('done')
+    return jsonify(data['tree'])
+
+def visit(node, emb):
+    if node != None:
+        if isinstance(node, dict) and '_root' in node:
+            #get the root node first
+            return visit(node['_root'], emb)
+        elif isinstance(node, dict):
+            #leaf node
+            return [node['data'][0]]
+        elif isinstance(node, list):
+            #non leaf node
+            wordlist = []
+            for i in range(4):
+                wordlist += visit(node[i], emb)
+            absTerm = emb.getAbstraction(*wordlist)
+            #print('abstraction of ' + str(wordlist) + ' is ' + str(absTerm))
+            node.append([ wordlist, absTerm ])
+            return wordlist
+    return []
+
+@app.route('/exists', methods=['POST'])
+def exists():
     json = request.get_json()
-    ident = json['id']
-    emb = embeddings[json['embedding']]
-    terms = json['terms']
-    return jsonify({'id' : ident, 'abstract_term' : emb.getAbstraction(*terms)})
+    emb = embeddings[json['emb']]
+    term = json['term']
+    return jsonify(emb.hasItem(term))
 
 @app.route('/projections_get_data', methods=['POST'])
 def projections_get_data():
@@ -105,31 +140,47 @@ def projections_get_data():
     labely = json['ydimension'] + ' (' + json['yembedding'] + ')'
     resp = jsonify((labelx, labely, [(term, dictx[term], dicty[term]) for term in wordlist]))
     return resp
-    
+
 @app.route('/coocs_get_data', methods=['POST'])
 def coocs_get_data():
     json = request.get_json()
     embs = json['embeddings']
     terms = json['terms']
+    coocs = json['coocs']
     high_vars = [embeddings[emb].coocVariancesTerm(20, *terms) for emb in embs]
-    all_terms = set()
+    #store variances
+    variances = {}
+    num_variances = {}
+    #add user chosen coocs to all terms
+    all_terms = set(coocs)
     term_sets = {}
     for l, emb in zip(high_vars, embs):
         new_set = set()
         for t in l:
+            if t[0] in variances:
+                variances[t[0]] += t[1]
+            else:
+                variances[t[0]] = t[1]
+            if t[0] in num_variances:
+                num_variances[t[0]] += 1
+            else:
+                num_variances[t[0]] = 1
             all_terms.add(t[0])
             new_set.add(t[0])
         term_sets[emb] = new_set
-    all_terms_list = list(all_terms)
+    #average variances
+    for term in variances:
+        variances[term] /= num_variances[term]
+    all_terms_list = sorted(list(all_terms), key=lambda x: variances[x] if x in variances else 0, reverse=True)
     results = {}
     for emb_name in embs:
         lines = []
         for selected_term in terms:
-            lines.append([(variance_term in term_sets[emb_name], embeddings[emb_name].getContextCount(selected_term, variance_term, log=False), selected_term, variance_term, emb_name) for variance_term in all_terms_list])
+            #lines.append([(variance_term in term_sets[emb_name], embeddings[emb_name].getContextCount(selected_term, variance_term), selected_term, variance_term, emb_name) for variance_term in all_terms_list])
+            lines.append([(variance_term in term_sets[emb_name], embeddings[emb_name].getContextProp(selected_term, variance_term), selected_term, variance_term, emb_name) for variance_term in all_terms_list])
         results[emb_name] = lines
-    print(results)
     return jsonify((embs, terms, all_terms_list, results))
-    
+
 @app.before_first_request
 def setup():
     #read embeddings

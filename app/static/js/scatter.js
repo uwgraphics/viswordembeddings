@@ -1,7 +1,3 @@
-//d3.json('/get_abstraction').header('Content-Type', 'application/json')
-//                               .post(JSON.stringify({'id':1, 'embedding':'TCP_EBO', 'terms' : ['queen','king','child']}),
-//                                function (error, json) { console.log(json); });
-
 function setupUi() {
     d3.select('#updatebutton').attr('onclick', 'load()');
     d3.json('/get_ui_data', function(error, json) {
@@ -22,6 +18,8 @@ function setupUi() {
 }
 setupUi();
 
+var lastRequest = null;
+
 function load() {
     var xembedding = document.getElementById('xembeddinglist').value;
     var yembedding = document.getElementById('yembeddinglist').value;
@@ -39,7 +37,8 @@ function load() {
     //remove old plot
     d3.select('#content').selectAll('*').remove();
     var spinner = new Spinner().spin(d3.select('#content').node());
-    
+
+    lastRequest = parameters;
     d3.json('/projections_get_data').header('Content-Type', 'application/json')
                         .post(JSON.stringify(parameters), createChart);
 }
@@ -47,61 +46,56 @@ function load() {
 function createChart(error, json) {
     //remove spinner
     d3.select('#content').selectAll('*').remove();
-    
-    if (error) return console.warn(error);    
-        
+
+    if (error) return console.warn(error);
     var data = json[2];
 
     var margin = {top: 20, right: 15, bottom: 60, left: 60}
-      , width = 960 - margin.left - margin.right
-      , height = 500 - margin.top - margin.bottom;
-    
+      , width = 960/*600*/ - margin.left - margin.right
+      , height = 500/*300*/ - margin.top - margin.bottom;
+
     var x = d3.scaleLinear()
               .domain([d3.min(data, function(d) { return d[1]; }), d3.max(data, function(d) { return d[1]; })])
               .range([ 0, width ]);
-    
+
     var y = d3.scaleLinear()
     	      .domain([d3.min(data, function(d) { return d[2]; }), d3.max(data, function(d) { return d[2]; })])
     	      .range([ height, 0 ]);
 
     var chart = d3.select('#content')
-	.append('svg:svg')
-	.attr('width', width + margin.right + margin.left)
-	.attr('height', height + margin.top + margin.bottom)
-	.attr('class', 'chart')
+                    .append('svg:svg')
+                    .attr('width', width + margin.right + margin.left)
+                    .attr('height', height + margin.top + margin.bottom)
+                    .attr('class', 'chart');
 
     var main = chart.append('g')
-	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-	.attr('width', width)
-	.attr('height', height)
-	.attr('class', 'main')   
-        
+                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .attr('class', 'main');
+
     // draw the x axis
     var xAxis = d3.axisBottom(x);
 
     main.append('g')
-	.attr('transform', 'translate(0,' + height + ')')
-	.attr('class', 'main axis date')
-	.call(xAxis);
+        .attr('transform', 'translate(0,' + height + ')')
+        .attr('class', 'main axis date')
+        .call(xAxis);
 
     // draw the y axis
     var yAxis = d3.axisLeft(y);
 
     main.append('g')
-	.attr('transform', 'translate(0,0)')
-	.attr('class', 'main axis date')
-	.call(yAxis);
+        .attr('transform', 'translate(0,0)')
+        .attr('class', 'main axis date')
+        .call(yAxis);
 
     // Define the div for the tooltip
-    var div = d3.select("body").append("div")	
+    var div = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 
-    var g = main.append("svg:g"); 
-    
-    var inSet = new Set(['princess', 'prince', 'boy', 'girl']);
-
-    var quadtree = d3.quadtree();
+    var g = main.append("svg:g");
 
     //find nodes within circle.
     function search(quadtree, cx, cy, r) {
@@ -110,7 +104,8 @@ function createChart(error, json) {
         var y0 = cy - r;
         var x3 = cx + r;
         var y3 = cy + r;
-        nodes = [];
+        leaves = [];
+        rules = [];
         quadtree.visit(function(node, x1, y1, x2, y2) {
             if (!node.length) {
                 do {
@@ -119,54 +114,69 @@ function createChart(error, json) {
                     var dy = y(d[2]);
                     var cdist = Math.sqrt((cx-dx)*(cx-dx) + (cy-dy)*(cy-dy));
                     var selected = cdist <= r;
-                    if (selected) { nodes.push(d); };
+                    //strip the string from the data array and
+                    //push a new array with it to be filled up later
+                    //to the leaves array
+                    if (selected) { leaves.push(d[0]); };
                 } while (node = node.next);
+            } else {
+                rules.push(node[4]);
             }
+            //true if no overlap, false if overlap
             return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
         });
-        return nodes;
-    }
-
-    function nodeAbstractions(quadtree) {
-        console.log('starting');
-        quadtree.visit(function(node, x1, y1, x2, y2) {
-            console.log(node.length);
-            console.log(node)
-            //if (!node.length) {
-            //    do {
-            //        var d = node.data;
-            //        var dx = x(d[1]);
-            //        var dy = y(d[2]);
-            //        var cdist = Math.sqrt((cx-dx)*(cx-dx) + (cy-dy)*(cy-dy));
-            //        var selected = cdist <= r;
-            //        if (selected) { nodes.push(d); };
-            //    } while (node = node.next);
-            //}
-            //return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
-        });
-        //return nodes;
+        rules.sort((a,b) => (a[0].length - b[0].length));
+        var origTermSet = new Set(leaves);
+        var currTermSet = new Set(leaves);
+        var maps = {  };
+        while (currTermSet.size > 10 && rules.length > 0) {
+            var rule = rules.shift();
+            var term_to_keep = rule[1][0];
+            if (origTermSet.has(term_to_keep)) {
+                currTermSet.add(term_to_keep);
+                maps[term_to_keep] = [];
+                var thismap = maps[term_to_keep];
+                for (var i = 0; i < rule[0].length; i++) {
+                    var term_to_remove = rule[0][i];
+                    if (!(term_to_remove === term_to_keep)) {
+                        var existed = currTermSet.delete(term_to_remove);
+                        if (existed) {
+                            thismap.push(term_to_remove);
+                        }
+                    }
+                }
+            }
+        }
+        var termArray = Array.from(currTermSet);
+        for (var i = 0; i < termArray.length; i++) {
+            if (!maps[termArray[i]]) {
+                maps[termArray[i]] = [];
+            }
+        }
+        return { abs : maps, terms : termArray };
     }
 
     var lensGroup = main.append('svg:g').attr('class', 'lens');
+    var lineGroup = lensGroup.append("svg:g").classed("lines", true);
     var lensLabels = lensGroup.append('svg:rect').attr('fill-opacity', '0.9').style('fill', 'lightblue').attr('rx', 15).attr('ry', 15);
     var lens = lensGroup.append('svg:circle')
         .attr('cx', 1)
         .attr('cy', 1)
         .attr('r', 100)
         .attr('stroke-width', '2')
-        .attr('stroke', 'blue')
+        .attr('stroke', 'gray')
         .attr('fill', 'transparent')
         .on('wheel.zoom', changeSize)
         .call(d3.drag().on('drag', dragged));
-        
-    function createLabels (node) {
+
+    function createLabels (node, altPressed) {
         var terms = [];
         var cx = Number(node.getAttribute('cx'));
         var cy = Number(node.getAttribute('cy'));
         var r = Number(node.getAttribute('r'));
-        terms = search(quadtree, cx, cy, r);
+        var results = search(quadtree, cx, cy, r);
+        visibleTerms = results.terms;
         lensGroup.selectAll('text').remove();
-        visibleTerms = terms.slice(0,10);
         
         if (visibleTerms == 0) {
             lensLabels.attr('visibility', 'hidden');
@@ -179,16 +189,44 @@ function createChart(error, json) {
             var labelsX = Number(lens.attr('cx')) + Number(lens.attr('r'));
             var labelsY = Number(lens.attr('cy'));
             var maxWidth = 0;
-            
-            lensGroup.selectAll('.real').data(visibleTerms).enter().append('text').text(d => d[0])
+
+            g.selectAll(".datapoint").style('fill', "black");
+            lineGroup.selectAll("*").remove();
+            lensGroup.selectAll('.real').data(visibleTerms).enter().append('text').text(d => d)
                         .attr('x', d => labelsX + 10).attr('y', (d, i) => ((labelsY + termsHeight/2) - (i * textHeight)) )
-                        .each(function(d, i) {if (this.getBBox().width > maxWidth) { maxWidth = this.getBBox().width; } } );
-                        
+                        .style('fill', (term) => (results.abs[term].length > 0 ? 'blue' : 'black'))
+                        .each(function(term, i) {
+                            if (this.getBBox().width > maxWidth) {
+                              maxWidth = this.getBBox().width;
+                            }
+                            if (altPressed) {
+                              //connect dots and words with lines
+                              var termPoint = null;
+                              g.selectAll(".datapoint").each(function(d) {
+                                if (d[0] === term || results.abs[term].indexOf(d[0]) >= 0) {
+                                  termPoint = this;
+                                }
+                              });
+                              var x1 = this.getBBox().x;
+                              var y1 = this.getBBox().y + (this.getBBox().height / 2);
+                              var x2 = termPoint.getBBox().x + (termPoint.getBBox().width / 2);
+                              var y2 = termPoint.getBBox().y + (termPoint.getBBox().height / 2);
+                              lineGroup.append("line").attr("x1", x1).attr("x2", x2).attr("y1", y1).attr("y2", y2)
+                                        .attr("stroke-width", 2)
+                                        .attr("stroke", "black");
+                            }
+                          } )
+                        .on('click', function(term) {
+                            g.selectAll(".datapoint").style('fill', function(d) {
+                              return (d[0] === term || results.abs[term].indexOf(d[0]) >= 0) ? 'lightblue' : 'black';
+                            });
+                            console.log(results.abs[term]);
+                        });
+
             lensLabels.attr('height', termsHeight + 5);
             if ( (labelsX + maxWidth + 20) > chart.attr('width')) {
-                console.log('blub');
-                labelsX = labelsX - (2*Number(lens.attr('r')) + maxWidth + 20);
-                lensGroup.selectAll('text').attr('x', function(d) { newX = Number(d3.select(this).attr('x')) - 20 - 2*Number(lens.attr('r')) - maxWidth; console.log(newX); return newX; });
+                labelsX = labelsX - (2 * Number(lens.attr('r')) + maxWidth + 20);
+                lensGroup.selectAll('text').attr('x', function(d) { newX = Number(d3.select(this).attr('x')) - 20 - 2 * Number(lens.attr('r')) - maxWidth; return newX; });
             }
             lensLabels.attr('x', labelsX);
             lensLabels.attr('y', labelsY - termsHeight/2);
@@ -203,9 +241,9 @@ function createChart(error, json) {
                     .attr("cx", x)
                     .attr("cy", y).node();
         var r = Number(node.getAttribute('r'));
-        createLabels(node);
+        createLabels(node, d3.event.sourceEvent.altKey);
     }
-    
+
     function changeSize(d) {
         var delta = 0.05 * d3.event.wheelDeltaY;
         d3.event.stopPropagation();
@@ -214,13 +252,18 @@ function createChart(error, json) {
         d3.select(this).attr('r', newR);
         createLabels(this);
     }
-    
+
+    var quadtree = d3.quadtree();
     quadtree.x(d => x(d[1])).y(d => y(d[2])).addAll(data);
-    //nodeAbstractions(quadtree);
-    
+    var stringTree = JSON.stringify({ emb : lastRequest.yembedding, tree : quadtree });
+    d3.json('/annotate_tree').header('Content-Type', 'application/json')
+                                   .post(stringTree,
+                                    function (error, json) { quadtree["_root"] = json["_root"]; quadtree["abs"] = true; });
+
     g.selectAll("dots")
       .data(data)
       .enter().append("svg:circle")
+          .classed("datapoint", true)
           .attr("cx", function (d) { return x(d[1]); } )
           .attr("cy", function (d) { return y(d[2]); } )
           .attr("r", 3)
@@ -236,13 +279,14 @@ function createChart(error, json) {
           .on("mouseout", function(d) {
                                 div.transition()
                                    .duration(500)
-                                   .style("opacity", 0); } );
+                                   .style("opacity", 0);
+    } );
 
     // text label for the x axis
-    main.append("text")             
+    main.append("text")
         .attr("transform",
-            "translate(" + (width/2) + " ," + 
-                           (height + margin.top + 20) + ")")
+              "translate(" + (width/2) + " ," +
+                             (height + margin.top + 20) + ")")
         .style("text-anchor", "middle")
         .text(json[0]);
 
