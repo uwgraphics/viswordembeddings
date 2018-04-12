@@ -420,37 +420,67 @@ function plotBuddies(error, json) {
           }
         });
         div.style("height", maxWidth + 20 + "px");
+        var itemArray = [];
+        termsGroup.selectAll("text").each(function(d) {
+          var thisNode = d3.select(this);
+          itemArray.push({
+            x: thisNode.node().getBBox().x,
+            //because of -90deg rotation
+            width: thisNode.node().getBBox().height,
+            height: thisNode.node().getBBox().width,
+            rightblock: false,
+            leftblock: false
+          });
+        });
         //avoid collisions
+        var delta = 1;
         var collisions = 1;
-        while (collisions) {
+        var changes = 1;
+        while (collisions && changes) {
           collisions = 0;
+          changes = 0;
           var lastNode = null;
-          termsGroup.selectAll("text").each(function(d) {
-            var thisNode = d3.select(this);
+          itemArray.forEach(function(d, i) {
+            var thisNode = d;
             if (!lastNode) {
               lastNode = thisNode;
             } else {
-              var lastPos = lastNode.node().getBoundingClientRect().x + lastNode.node().getBoundingClientRect().width;
-              var thisPos = thisNode.node().getBoundingClientRect().x;
-              var delta = 2;
+              var lastPos = lastNode.x + lastNode.width;
+              var thisPos = thisNode.x;
               //if collision
-              if (thisPos - lastPos < 2) {
-                console.log("COLLISION", lastNode.html(), thisNode.html());
+              if ((thisPos - lastPos) < 2) {
                 collisions++;
-                var lastX = parseInt(lastNode.attr("x"));
-                var lastY = parseInt(lastNode.attr("y"));
-                var thisX = parseInt(thisNode.attr("x"));
-                var thisY = parseInt(thisNode.attr("y"));
-
-                lastNode.attr("x", lastX - delta);
-                thisNode.attr("x", thisX + delta);
-                lastNode.attr("transform", "rotate(-90," + (lastX - delta) + "," + lastY + ")");
-                thisNode.attr("transform", "rotate(-90," + (thisX + delta) + "," + thisY + ")");
+                if (!lastNode.leftblock) {
+                  lastNode.x -= delta;
+                  changes++;
+                } else {
+                  thisNode.leftblock = true;
+                }
+                if (!thisNode.rightblock) {
+                  thisNode.x += delta;
+                  changes++;
+                } else {
+                  lastNode.rightblock = true;
+                }
+                if (lastNode.x < 10) {
+                  lastNode.x = 10;
+                  lastNode.leftblock = true;
+                }
+                if ((thisNode.x + thisNode.width) > width) {
+                  thisNode.x = width - thisNode.width;
+                  thisNode.rightblock = true;
+                }
               }
               lastNode = thisNode;
             }
           });
         }
+        termsGroup.selectAll("text").data(itemArray).each(function(d) {
+          var thisNode = d3.select(this);
+          thisNode.attr("x", d.x);
+          var y = thisNode.attr("y");
+          thisNode.attr("transform", "rotate(-90," + d.x + "," + y + ")");
+        });
     }).on('mouseout', function(i) {
         d3.select(this).style('cursor', 'default');
         div.transition().duration(500).style('opacity', 0).on("end", function() {
