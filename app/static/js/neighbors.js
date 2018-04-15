@@ -410,7 +410,7 @@ function plotBuddies(error, json) {
             .attr("x", thisXPos);
           var newNodeWidth = newNode.node().getBBox().width;
           var newNodeHeight = newNode.node().getBBox().height/2.0;
-          newNode.attr("y", thisYPos + newNodeWidth + 30)
+          newNode.attr("y", thisYPos + newNodeWidth + 50)
                   .attr("x", thisXPos + newNodeHeight)
                   .attr("transform", "rotate(-90," + (thisXPos + newNodeHeight) + "," + (thisYPos + newNodeWidth + 30) + ")");
                   //.attr("x", thisXPos)
@@ -419,11 +419,12 @@ function plotBuddies(error, json) {
             maxWidth = newNodeWidth;
           }
         });
-        div.style("height", maxWidth + 20 + "px");
+        div.style("height", maxWidth + 40 + "px");
         var itemArray = [];
         termsGroup.selectAll("text").each(function(d) {
           var thisNode = d3.select(this);
           itemArray.push({
+            x_orig: thisNode.node().getBBox().x,
             x: thisNode.node().getBBox().x,
             //because of -90deg rotation
             width: thisNode.node().getBBox().height,
@@ -478,8 +479,10 @@ function plotBuddies(error, json) {
         termsGroup.selectAll("text").data(itemArray).each(function(d) {
           var thisNode = d3.select(this);
           thisNode.attr("x", d.x);
-          var y = thisNode.attr("y");
+          var y = parseInt(thisNode.attr("y"));
           thisNode.attr("transform", "rotate(-90," + d.x + "," + y + ")");
+          termsGroup.append("line").attr("x1", d.x - d.width/4).attr("x2", d.x_orig - d.width/4).attr("y1", y - d.height).attr("y2", y - d.height - 27)
+                    .style("stroke", "black").style("stroke-width", "1");
         });
     }).on('mouseout', function(i) {
         d3.select(this).style('cursor', 'default');
