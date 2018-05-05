@@ -13,7 +13,12 @@ wordlists = {}
 data_path = Path(__file__).resolve().parent.parent / 'data'
 print('data path: ' + str(data_path))
 
-stopwords = set((line.strip() for line in (data_path / 'stopwords.txt').open()))
+stopwords = { }
+if (data_path / 'stopwords.txt').exists():
+    print("loading stopwords from " + str(data_path / 'stopwords.txt'))
+    stopwords = set((line.strip() for line in (data_path / 'stopwords.txt').open()))
+else:
+    print("no file stopwords.txt in " + str(data_path))
 
 if len(sys.argv) > 1 and sys.argv[1] == 'demo':
     print("RUNNING IN LOCAL DEMO MODE!!")
