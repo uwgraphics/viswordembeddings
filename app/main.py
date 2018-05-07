@@ -26,6 +26,11 @@ if len(sys.argv) > 1 and sys.argv[1] == 'demo':
     print("static folder: " + str(p))
     app = Flask(__name__, static_folder=str(p))
 
+    #read embeddings
+    embeddings_path = data_path / 'embeddings'
+    for f in (f.name for f in embeddings_path.iterdir() if f.name.endswith('_vecs.npy')):
+        embeddings[f[:-9]] = Embedding(str(embeddings_path / f[:-9]), stopwords)
+
     @app.route('/')
     def index():
         return app.send_static_file('index.html')
@@ -38,6 +43,13 @@ if len(sys.argv) > 1 and sys.argv[1] == 'demo':
     def send_file(path):
         print(path)
         return app.send_static_file(path)
+elif len(sys.argv) > 1 and sys.argv[1] == 'preload':
+    print("preloading embeddings")
+    #read embeddings
+    embeddings_path = data_path / 'embeddings'
+    for f in (f.name for f in embeddings_path.iterdir() if f.name.endswith('_vecs.npy')):
+        embeddings[f[:-9]] = Embedding(str(embeddings_path / f[:-9]), stopwords, preload = True)
+    sys.exit(0)
 else:
     app = Flask(__name__)
 
@@ -188,10 +200,11 @@ def coocs_get_data():
 
 @app.before_first_request
 def setup():
-    #read embeddings
-    embeddings_path = data_path / 'embeddings'
-    for f in (f.name for f in embeddings_path.iterdir() if f.name.endswith('_vecs.npy')):
-        embeddings[f[:-9]] = Embedding(str(embeddings_path / f[:-9]), stopwords)
+    if not embeddings:
+        #read embeddings
+        embeddings_path = data_path / 'embeddings'
+        for f in (f.name for f in embeddings_path.iterdir() if f.name.endswith('_vecs.npy')):
+            embeddings[f[:-9]] = Embedding(str(embeddings_path / f[:-9]), stopwords)
     #read wordlists
     wordlists_path = data_path / 'wordlists'
     for f in wordlists_path.iterdir():

@@ -41,7 +41,9 @@ After installing [docker](https://www.docker.com) on your system, the image can 
 Before we can run the image, we have to make sure that a folder containing the embeddings to analyze exists (more information about the directory structure that viswordembedding expects is available on the [project webpage](http://graphics.cs.wisc.edu/Vis/EmbVis/)).
 This folder should be mounted into the docker container as the `/data` folder.
 To access the front-end, the docker container exposes port 80, which can be mapped to any local port.
-The following example for running the image uses the local port 8080 and mounts the local folder `/embeddings_data` as the data folder into the docker container:
+During runtime, all embeddings are loaded into (shared) memory addresses.
+The available shared memory (--shm-size) must therefore be set to a large enough value.
+The following example for running the image uses shared memory size of 10GB, makes the front-end available at local port 8080, and mounts the local folder `/embeddings_data` as the data folder into the docker container:
 ```
-  docker run fheimerl/viswordembeddings -p 8080:80 -v /embeddings_data/:/data/
+  docker run --shm-size=10GB -p 8080:80 -v /embeddings_data/:/data/ fheimerl/viswordembeddings
 ```

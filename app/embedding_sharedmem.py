@@ -1,4 +1,4 @@
-import os, math, copy
+import os, math, copy, random, string
 import numpy as np
 from scipy.spatial import distance
 from scipy.stats import variation
@@ -25,16 +25,28 @@ def getListArithmetic(inputString, symb = '+'):
 
 class Embedding(object):
 
-    def del_stuff(self):
-        sharearray.free(strip_filename(self.terms_filename))
-        sharearray.free(strip_filename(self.vecs_filename))
-        if (self.context):
-            sharearray.free(strip_filename(self.cvecs_filename))
-            sharearray.free(strip_filename(self.biases_filename))
-            sharearray.free(strip_filename(self.cbiases_filename))
+    def __del__(self):
+        if hasattr(self, 'ident'): # otherwise we are only preloading
+            others = len([f for f in os.listdir('/tmp/') if f.startswith(self.ident)])
+            os.remove('/tmp/' + self.ident + self.rand_ident)
+            if others == 1:
+                sharearray.free(strip_filename(self.terms_filename))
+                sharearray.free(strip_filename(self.vecs_filename))
+                if (self.has_stats):
+                    sharearray.free(strip_filename(self.stats_filename))
+                if (self.context):
+                    sharearray.free(strip_filename(self.cvecs_filename))
+                    sharearray.free(strip_filename(self.biases_filename))
+                    sharearray.free(strip_filename(self.cbiases_filename))
 
-    def __init__(self, root_filename, stopwords = set()):
+    def __init__(self, root_filename, stopwords = set(), preload = False):
         print('root filename: ' + root_filename)
+
+        if not preload:
+            self.ident = root_filename.split('/')[-1].replace('.', '_')
+            self.rand_ident = ''.join([random.choice(string.ascii_letters) for n in range(10)])
+            open('/tmp/' + self.ident + self.rand_ident, 'w').close()
+
         self.stopwords = stopwords
         self.root_filename = root_filename
         self.terms_filename = root_filename + '_terms.npy'
