@@ -30,6 +30,9 @@ The front-end is accessible with a browser (preferably [Google Chrome](https://w
 ## Docker image
 Alternatively, we provide a [docker](https://www.docker.com) image of viswordembeddings that contains all dependencies.
 It can be easily set up locally, or on public server infrastructure.
+The image is based on the [tiangolo/uwsgi-nginx-flask:python3.6-index](https://github.com/tiangolo/uwsgi-nginx-flask-docker) image.
+It uses [uWSGI](http://projects.unbit.it/uwsgi) to run the Python back-end, and [nginx](https://www.nginx.com/) to distribute traffic between uWSGI instances.
+uWSGI keeps a variable pool of workers as needed through its [cheaper subsystem](http://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html).
 
 ### Installing the docker image
 After installing [docker](https://www.docker.com) on your system, the image can be installed using:
