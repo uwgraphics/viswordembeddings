@@ -16,43 +16,50 @@
             <div class="textblock">
                 <h1>What is this page about?</h1>
                 <p>
-                This page contains our interactive designs for exploring and analyzing word vector embeddings.
-                For more information about the implementations and the ideas behind it, please refer to our <a href="http://pages.cs.wisc.edu/~heimerl/files/poster_summary.pdf" target="_blank">poster paper</a> for <a href="http://ieeevis.org" target="_blank">VIS 2017</a>.
-                If you use our implementations or our code for your own project, please cite our poster with the following BibTeX entry:
+                This page contains interactive designs for exploring and analyzing word vector embeddings.
+                For more information about the implementations and the ideas behind it, please refer to our <a href="http://pages.cs.wisc.edu/~heimerl/files/poster_summary.pdf" target="_blank">paper</a> presented at <a href="https://www.eurovis2018.org" target="_blank">EuroVis 2018</a>.
+                If you use our implementations or our code for your own project, please cite us as follows:
                 </p>
                 <pre>
-@InCollection {heimerl:2017,
-    title     = {Visual Exploration of Word Vector Embeddings},
-    author    = {Florian Heimerl, Michael Gleicher},
-    booktitle = {Proceedings of VIS 2017 (Posters)},
-    year      = {2017}
+@Article{HG18,
+  author       = {Heimerl, Florian and Gleicher, Michael},
+  title        = {Interactive Analysis of Word Vector Embeddings},
+  journal      = {Computer Graphics Forum},
+  number       = {3},
+  volume       = {37},
+  month        = {jun},
+  year         = {2018},
+  projecturl   = {http://graphics.cs.wisc.edu/Vis/EmbVis},
+  url          = {http://graphics.cs.wisc.edu/Papers/2018/HG18}
 }
                 </pre>
                 <p>
-                We provide 22 example embeddings to use and explore with the implementations on this page.
-                Those are:
+                We provide 22 example embeddings in the right format, ready to use and explore with our implementations:
                     <ul>
                         <li><b>1800-1990:</b> The
                             <a href="https://github.com/williamleif/histwords" target="_blank">HistWords</a>
                             embeddings created by
                             <a href="https://web.stanford.edu/~jurafsky/pubs/paper-hist_vec.pdf" target="_blank">Hamilton et al.</a>
                             We use their "All English" data set.
-                            Those embeddings are trained on Google n-grams for each decade from 1800-1990, resulting in 20 embeddings.
+                            Those embeddings are trained on Google n-grams for each decade from 1800-1990, resulting in 20 embeddings
+                            (<a href="https://pages.cs.wisc.edu/~heimerl/hamilton_embeddings.tar.bz2">download</a>).
                         </li>
-                        
                         <li><b>EEBO_TCP:</b>
                             Word embedding trained with
                             <a href="https://nlp.stanford.edu/projects/glove/" target="_blank">GloVe</a>
                             on the historic
                             <a href="http://www.textcreationpartnership.org/tcp-eebo/" target="_blank">EEBO-TCP</a>
                             corpus.
+                            This embeddings is trained with a window size of 15, and a minimum word count of 5
+                            (<a href="https://pages.cs.wisc.edu/~heimerl/eebo_embeddings.tar.bz2">download</a>).
                         </li>
-                        
-                        <li><b>wiki_full:</b>
-                            Word embedding trained with
+                        <li><b>wiki1-5:</b>
+                            Word embeddings trained with
                             <a href="https://nlp.stanford.edu/projects/glove/" target="_blank">GloVe</a>
                             on the entire English
                             <a href="http://www.wikipedia.org" target="_blank">Wikipedia</a>.
+                            All five embeddings are trained with a window size of 15, and a minimum word count of 5
+                            (<a href="https://pages.cs.wisc.edu/~heimerl/wiki_embeddings.tar.bz2">download</a>).
                         </li>
                     </ul>
                 </p>
@@ -60,8 +67,7 @@
                 <p>
                 If you are interested in analyzing your own embeddings, you can either directly work with our code available on <a href="https://github.com/uwgraphics/viswordembeddings" target="_blank">GitHub</a>.
                 Alternatively, a <a href="https://hub.docker.com/r/fheimerl/viswordembeddings/" target="_blank">docker image</a> that runs the implementations on a web server is available.
-                Embeddings can be linked to the image by mounting them to <i>/data</i> inside the docker image.
-                An example dataset that contains the Wikipedia and EEBO_TCP word embeddings is <a href="http://pages.cs.wisc.edu/~heimerl/embs.tar.bz2" target="_blank">available for download</a>.
+                More information in how to set up and run the image is available <a href="http://graphics.cs.wisc.edu/Vis/EmbVis/" target="_blank">here</a>.
                 </p>
             </div>
         </div>
