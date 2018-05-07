@@ -26,7 +26,7 @@ def getListArithmetic(inputString, symb = '+'):
 class Embedding(object):
 
     def __del__(self):
-        if hasattr(self, 'ident'): # otherwise we are only preloading
+        if hasattr(self, 'ident'): # otherwise we are preloading
             others = len([f for f in os.listdir('/tmp/') if f.startswith(self.ident)])
             os.remove('/tmp/' + self.ident + self.rand_ident)
             if others == 1:
