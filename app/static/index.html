@@ -16,23 +16,13 @@
             <div class="textblock">
                 <h1>What is this page about?</h1>
                 <p>
-                This page contains interactive designs for exploring and analyzing word vector embeddings.
-                For more information about the implementations and the ideas behind it, please refer to our <a href="http://pages.cs.wisc.edu/~heimerl/files/poster_summary.pdf" target="_blank">paper</a> presented at <a href="https://www.eurovis2018.org" target="_blank">EuroVis 2018</a>.
-                If you use our implementations or our code for your own project, please cite us as follows:
-                </p>
-                <pre>
-@Article{HG18,
-  author       = {Heimerl, Florian and Gleicher, Michael},
-  title        = {Interactive Analysis of Word Vector Embeddings},
-  journal      = {Computer Graphics Forum},
-  number       = {3},
-  volume       = {37},
-  month        = {jun},
-  year         = {2018},
-  projecturl   = {http://graphics.cs.wisc.edu/Vis/EmbVis},
-  url          = {http://graphics.cs.wisc.edu/Papers/2018/HG18}
-}
-                </pre>
+		This webpage contains three demo implementations of designs to explore and analyze word vector embeddings.
+		They support exploring <b>neighborhoods</b>, <b>projecting</b> words onto <b>concept</b> axes, and viewing word <b>co-occurrences</b> reconstructed from the embedding model.
+		You can get to each of the demos by clicking on the link in the navigation bar on top of this page.
+		For more information about the implementations, the ideas behind them, and videos describing the interface and use cases, pleae visit our <a href="http://graphics.cs.wisc.edu/Vis/EmbVis/">project webpage</a>.
+		Additional information is available in our <a href="http://graphics.cs.wisc.edu/Papers/2018/HG18/" target="_blank">paper</a> presented at <a href="https://www.eurovis2018.org" target="_blank">EuroVis 2018</a>.
+
+		<h1>Download Embeddings</h1>
                 <p>
                 We provide 22 example embeddings in the right format, ready to use and explore with our implementations:
                     <ul>
@@ -52,6 +42,8 @@
                             corpus.
                             This embeddings is trained with a window size of 15, and a minimum word count of 5
                             (<a href="https://pages.cs.wisc.edu/~heimerl/eebo_embeddings.tar.bz2">download</a>).
+			    The dimensionality of this embedding is 50, which we have chosen to reduce memory requirements of our online demo.
+			    While such an embedding works reasonably well for demonstration purposes, high quality embeddings used in production environments usually have between 200 to 300 dimensions.
                         </li>
                         <li><b>wiki1-5:</b>
                             Word embeddings trained with
@@ -60,6 +52,8 @@
                             <a href="http://www.wikipedia.org" target="_blank">Wikipedia</a>.
                             All five embeddings are trained with a window size of 15, and a minimum word count of 5
                             (<a href="https://pages.cs.wisc.edu/~heimerl/wiki_embeddings.tar.bz2">download</a>).
+			    The dimensionality of these embeddings is 50, which we have chosen to reduce memory requirements of our online demo.
+			    While those embeddings work reasonably well for demonstration purposes, high quality embeddings used in production environments usually have between 200 to 300 dimensions.
                         </li>
                     </ul>
                 </p>
@@ -69,6 +63,24 @@
                 Alternatively, a <a href="https://hub.docker.com/r/fheimerl/viswordembeddings/" target="_blank">docker image</a> that runs the implementations on a web server is available.
                 More information in how to set up and run the image is available <a href="http://graphics.cs.wisc.edu/Vis/EmbVis/" target="_blank">here</a>.
                 </p>
+
+		<h1>Citation</h1>
+		If you use our implementations or our code for your own project, please cite us as follows:
+                </p>
+                <pre>
+@Article{HG18,
+  author       = {Heimerl, Florian and Gleicher, Michael},
+  title        = {Interactive Analysis of Word Vector Embeddings},
+  journal      = {Computer Graphics Forum},
+  number       = {3},
+  volume       = {37},
+  month        = {jun},
+  year         = {2018},
+  projecturl   = {http://graphics.cs.wisc.edu/Vis/EmbVis},
+  url          = {http://graphics.cs.wisc.edu/Papers/2018/HG18}
+}
+                </pre>
+
             </div>
         </div>
     </body>
