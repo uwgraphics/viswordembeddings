@@ -5,5 +5,6 @@ ENV STATIC_PATH /app/static
 ENV STATIC_URL /s
 COPY ./app /app
 COPY ./uwsgi.ini /etc/uwsgi/uwsgi.ini
+COPY ./nginx.conf /etc/nginx/conf.d/nginx.conf
 RUN mkdir /data
 EXPOSE 80
