@@ -77,6 +77,7 @@ require(["d3", "jquery", "jqueryui", "spin", "d3-legend"], function(d3, $, dunno
       coocs = [];
       $("#cooclist > li > input").each((i,e) => (coocs.push(e.value)));
       //filter empty strings
+      terms = terms.filter(d => d);
       coocs = coocs.filter(d => d);
 
       //close dialog
